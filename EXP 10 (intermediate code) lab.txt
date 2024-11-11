@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char op[5];     // Operator (e.g., "+", "-", "*", "/")
+    char arg1[10];  // First operand
+    char arg2[10];  // Second operand
+    char result[10]; // Result variable
+} TAC;
+
+void generateTargetCode(TAC tac[], int n) {
+    printf("Generated Target Code:\n");
+    
+    for (int i = 0; i < n; i++) {
+        // Load the first operand into a register (R0)
+        printf("MOV R0, %s\n", tac[i].arg1);
+        
+        // Choose operation based on the operator in TAC
+        if (strcmp(tac[i].op, "+") == 0) {
+            printf("ADD R0, %s\n", tac[i].arg2);  // Add arg2 to R0
+        } else if (strcmp(tac[i].op, "-") == 0) {
+            printf("SUB R0, %s\n", tac[i].arg2);  // Subtract arg2 from R0
+        } else if (strcmp(tac[i].op, "*") == 0) {
+            printf("MUL R0, %s\n", tac[i].arg2);  // Multiply R0 by arg2
+        } else if (strcmp(tac[i].op, "/") == 0) {
+            printf("DIV R0, %s\n", tac[i].arg2);  // Divide R0 by arg2
+        }
+
+        // Move the result from R0 to the destination
+        printf("MOV %s, R0\n", tac[i].result);
+        printf("\n");  // New line for readability
+    }
+}
+
+int main() {
+    // Example TAC code
+    TAC tac[] = {
+        {"+", "A", "B", "T1"},
+        {"*", "T1", "C", "T2"},
+        {"-", "T2", "D", "T3"}
+    };
+    int n = sizeof(tac) / sizeof(tac[0]);
+
+    // Generate target code
+    generateTargetCode(tac, n);
+
+    return 0;
+}

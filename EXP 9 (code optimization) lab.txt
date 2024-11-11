@@ -1,0 +1,103 @@
+#include <stdio.h>
+#include <string.h>
+
+struct op {
+    char l;        // left-hand side variable
+    char r[20];    // right-hand side expression
+} op[10], pr[10];
+
+int main() {
+    int i, j, n, z = 0, m;
+    char temp, t;
+    char *p, *l;
+    printf("Enter the Number of Values: ");
+    scanf("%d", &n);
+    getchar();  // Consume the newline character left after entering n
+    
+    // Input for intermediate code
+    for (i = 0; i < n; i++) {
+        printf("left (single char variable): ");
+        fgets(op[i].r, sizeof(op[i].r), stdin);  // Read full line as string
+        op[i].l = op[i].r[0];  // Extract the first character for 'left'
+        
+        printf("right (expression): ");
+        fgets(op[i].r, sizeof(op[i].r), stdin);  // Read the right-hand side expression
+        // Remove newline character if present
+        op[i].r[strcspn(op[i].r, "\n")] = 0;
+    }
+    
+    // Display Intermediate Code
+    printf("\nIntermediate Code:\n");
+    for (i = 0; i < n; i++) {
+        printf("%c = %s\n", op[i].l, op[i].r);
+    }
+    
+    // Dead Code Elimination
+    for (i = 0; i < n - 1; i++) {
+        temp = op[i].l;
+        for (j = 0; j < n; j++) {
+            p = strchr(op[j].r, temp);  // Check if the variable is used later
+            if (p) {
+                pr[z].l = op[i].l;
+                strcpy(pr[z].r, op[i].r);
+                z++;
+                break;  // No need to check further if it is used once
+            }
+        }
+    }
+    
+    pr[z].l = op[n - 1].l;  // Keep the last statement as it's always needed
+    strcpy(pr[z].r, op[n - 1].r);
+    z++; 
+    printf("\nAfter Dead Code Elimination:\n");
+    for (i = 0; i < z; i++) {
+        printf("%c = %s\n", pr[i].l, pr[i].r);
+    }
+    
+    // Eliminate Common Subexpression
+    for (m = 0; m < z; m++) {
+        for (j = m + 1; j < z; j++) {
+            if (strcmp(pr[m].r, pr[j].r) == 0) {  // Check if RHS is identical
+                t = pr[j].l;  // Temporary store the LHS of the redundant statement
+                pr[j].l = pr[m].l;  // Replace it with the previous expression
+                for (i = 0; i < z; i++) {
+                    l = strchr(pr[i].r, t);  // Update all uses of the redundant LHS
+                    if (l) {
+                        int pos = l - pr[i].r;
+                        pr[i].r[pos] = pr[m].l;  // Replace with the new variable
+                    }
+                }
+            }
+        }
+    }
+    
+    printf("\nAfter Common Subexpression Elimination:\n");
+    for (i = 0; i < z; i++) {
+        printf("%c = %s\n", pr[i].l, pr[i].r);
+    }
+   
+ // Remove Redundant Assignments
+    for (i = 0; i < z; i++) {
+        for (j = i + 1; j < z; j++) {
+            if (pr[i].l == pr[j].l && strcmp(pr[i].r, pr[j].r) == 0) {
+                pr[i].l = '\0';  // Mark redundant assignment
+            }
+        }
+    }
+    printf("\nOptimized Code:\n");
+    for (i = 0; i < z; i++) {
+        if (pr[i].l != '\0') {  // Print only non-redundant assignments
+            printf("%c = %s\n", pr[i].l, pr[i].r);
+        }
+    }
+    return 0;
+}
+
+---------------
+3
+t1
+a+b
+t2
+a+b
+t3
+t1+c
