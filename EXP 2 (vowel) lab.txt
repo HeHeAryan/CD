@@ -1,0 +1,23 @@
+%{
+#include<stdio.h>
+int i =0;
+%}
+%%
+
+"a"|"e"|"i"|"o"|"u" {printf("vowel");}
+[aeiouAEIOU][A-Za-z]* {printf("starting with a vowel");}
+ 
+[a-zA-Z][a-z|0-9]* {printf("Identifier");}
+[0-9]+ {printf("Number");}
+"!"|"@"|"*"|"&"|"^"|"$"|"#" {printf("Special Character");}
+%%
+
+int yywrap()
+{
+return 1;
+}
+main()
+{
+printf("Enter a string of data\n");
+yylex();
+}

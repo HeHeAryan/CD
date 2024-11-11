@@ -1,0 +1,110 @@
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_SYMBOLS 100
+
+typedef struct {
+    char *name;
+    int type; // 0: Identifier, 1: Keyword
+} SymbolTableEntry;
+
+SymbolTableEntry symbolTable[MAX_SYMBOLS];
+int symbolTableSize = 0;
+
+void addSymbol(const char *name, int type) {
+    if (symbolTableSize < MAX_SYMBOLS) {
+        symbolTable[symbolTableSize].name = strdup(name);
+        symbolTable[symbolTableSize].type = type;
+        symbolTableSize++;
+    }
+}
+
+void printSymbolTable() {
+    int i;  printf("\nSymbol Table:\n");
+    for (i = 0; i < symbolTableSize; i++) {
+        printf("%s (%s)\n", symbolTable[i].name, symbolTable[i].type == 0 ? "Identifier" : "Keyword");
+    }
+}
+
+%}
+
+%%
+
+"int"|"char"|"float"|"double"|"return"|"if"|"else"|"while"|"for"|"void"|"include"|"main"|"printf"|"stdio" { 
+    printf("Keyword: %s\n", yytext);
+    addSymbol(yytext, 1);
+}
+
+[a-zA-Z_][a-zA-Z0-9_]* {
+    // Check if it's a keyword or an identifier
+    if (strcmp(yytext, "int") == 0 || strcmp(yytext, "char") == 0 ||
+        strcmp(yytext, "float") == 0 || strcmp(yytext, "double") == 0 ||
+        strcmp(yytext, "return") == 0 || strcmp(yytext, "if") == 0 ||
+        strcmp(yytext, "else") == 0 || strcmp(yytext, "while") == 0 ||
+        strcmp(yytext, "for") == 0 || strcmp(yytext, "void") == 0) {
+  
+    } else {
+        printf("Identifier: %s\n", yytext);
+        addSymbol(yytext, 0); 
+    }
+}
+
+[0-9]+ { 
+    printf("Number: %s\n", yytext);
+}
+
+"/*"[^*]*("*+[^/*][^*]*")*"*/" {
+    // Match comments
+    printf("Comment: %s\n", yytext);
+}
+
+"=="|"!="|"<="|">="|"<"|">" {
+    printf("Relational Operator: %s\n", yytext);
+}
+
+"&&"|"||" {
+    printf("Logical Operator: %s\n", yytext);
+}
+
+[ \t\n]+    /* Skip whitespace */
+.            /* Any other character */
+
+%%
+
+int main(int argc, char **argv) {
+    yylex();
+    printSymbolTable();
+    return 0;
+}
+
+int yywrap() {
+    return 1;
+}
+
+
+-------------------------------------------------
+#include <stdio.h>
+int multiply(int a, int b);
+
+// Main function 
+int main() {
+
+	int num1, num2;
+	printf("Enter the first number: "); 
+	scanf("%d", &num1);
+
+	printf("Enter the second number: "); 
+	scanf("%d", &num2);
+	int result = multiply (num1, num2); 
+	printf("The product is: %d\n", result);
+
+	return 0;
+}
+
+int multiply(int a, int b) {
+
+return a * b;
+
+}
